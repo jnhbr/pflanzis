@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pflanzis</title>
+<meta name="theme-color" content="#FBF3E4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pflanzis">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --creme:#FBF3E4;--karte:#FFFDF8;--fig:#FBF1E1;--linie:#EADFCB;
+  --salbei:#7FA383;--salbei-d:#4E7356;--salbei-h:#E4EEDF;
+  --terra:#C9693E;--terra-d:#A44F2A;--terra-h:#F7E3D6;
+  --wasser:#4F93D0;--wasser-h:#DCEAF7;
+  --text:#3A2E28;--grau:#857870;
+  --r:20px;--sh:0 2px 0 rgba(120,90,60,.06),0 6px 18px rgba(120,90,60,.08);
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--creme);color:var(--text);font:16px/1.45 Nunito,system-ui,sans-serif}
+body{padding-bottom:calc(84px + var(--safe-b))}
+h1,h2,h3{font-family:Fredoka,Nunito,sans-serif;font-weight:600;margin:0;line-height:1.2}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+img{max-width:100%}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+/* Kopf */
+.top{position:sticky;top:0;z-index:20;background:rgba(251,243,228,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding-top:var(--safe-t)}
+.top .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.top img{width:38px;height:38px;border-radius:11px;box-shadow:var(--sh)}
+.top h1{font-size:24px;color:var(--salbei-d);flex:1}
+.sync{font-size:12px;color:var(--grau);display:flex;align-items:center;gap:6px}
+.sync i{width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block}
+.sync.on i{background:var(--salbei)}
+
+/* Navigation */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--karte);border-top:1px solid var(--linie);padding-bottom:var(--safe-b)}
+.tabs .wrap{display:flex;height:64px}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:700;color:var(--grau)}
+.tabs button span{font-size:22px;line-height:1;filter:grayscale(.6);opacity:.7}
+.tabs button.akt{color:var(--salbei-d)}
+.tabs button.akt span{filter:none;opacity:1;transform:scale(1.1)}
+.tabs .badge{position:absolute;margin:-30px 0 0 26px;background:var(--terra);color:#fff;font-size:11px;border-radius:9px;padding:0 6px;min-width:18px;text-align:center}
+
+/* Bausteine */
+.karte{background:var(--karte);border-radius:var(--r);box-shadow:var(--sh);padding:16px}
+.abschnitt{margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.abschnitt h2{font-size:19px;flex:1}
+.leise{color:var(--grau);font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:14px;padding:11px 16px;font-weight:800;background:var(--salbei-h);color:var(--salbei-d)}
+.btn.voll{background:var(--salbei);color:#fff}
+.btn.wasser{background:var(--wasser);color:#fff}
+.btn.terra{background:var(--terra);color:#fff}
+.btn.rot{background:#F6DCD6;color:#9B3B2A}
+.btn.klein{padding:7px 12px;font-size:14px;border-radius:12px}
+.btn.breit{width:100%}
+.btn:active{transform:scale(.97)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--salbei-h);color:var(--salbei-d)}
+.pill.terra{background:var(--terra-h);color:var(--terra-d)}
+.pill.wasser{background:var(--wasser-h);color:#2F6CA3}
+.leer{text-align:center;padding:30px 10px;color:var(--grau)}
+.leer img{width:120px;border-radius:24px;margin-bottom:10px}
+
+/* Held */
+.held{display:flex;gap:14px;align-items:center;margin-top:8px}
+.held .maskottchen{width:104px;flex:none;border-radius:26px;box-shadow:var(--sh)}
+.held .blase{position:relative;background:var(--karte);border-radius:18px;padding:12px 14px;box-shadow:var(--sh);flex:1}
+.held .blase:before{content:"";position:absolute;left:-8px;top:24px;border:8px solid transparent;border-right-color:var(--karte);border-left:0}
+.held h2{font-size:20px}
+
+/* Figur mit Durst-Anzeige */
+.fig{position:relative;border-radius:18px;overflow:hidden;background:var(--fig);aspect-ratio:1}
+.fig img.f{width:100%;height:100%;object-fit:cover;display:block;transform-origin:50% 88%;transition:filter .8s,transform .8s}
+.fig[data-d="1"] img.f{filter:saturate(.85)}
+.fig[data-d="2"] img.f{filter:saturate(.62) sepia(.12);transform:scaleY(.975)}
+.fig[data-d="3"] img.f{filter:saturate(.42) sepia(.28) brightness(.97);transform:scaleY(.94) skewX(-2.5deg);animation:welk 3.5s ease-in-out infinite}
+@keyframes welk{50%{transform:scaleY(.925) skewX(-3.5deg)}}
+.fig .foto{position:absolute;right:6px;bottom:6px;width:34%;aspect-ratio:1;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:var(--sh)}
+.fig.nurfoto img.f{object-fit:cover}
+.tank{position:absolute;left:7px;top:7px;width:22px;height:30px}
+.durst{position:absolute;right:6px;top:6px;background:var(--terra);color:#fff;font-size:11px;font-weight:800;border-radius:99px;padding:2px 8px;animation:hops 1.6s ease-in-out infinite}
+@keyframes hops{50%{transform:translateY(-2px)}}
+.tropfen{position:absolute;top:-20px;width:9px;height:13px;background:var(--wasser);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;opacity:.85;animation:fall 1.1s ease-in forwards}
+@keyframes fall{to{transform:translateY(190px);opacity:0}}
+
+/* Liste Heute */
+.zeile{display:flex;gap:12px;align-items:center;background:var(--karte);border-radius:var(--r);box-shadow:var(--sh);padding:10px;margin-bottom:10px}
+.zeile .fig{width:78px;flex:none;border-radius:16px}
+.zeile .info{flex:1;min-width:0}
+.zeile .info b{font-family:Fredoka;font-weight:600;font-size:17px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zeile .info small{display:block;color:var(--grau);font-size:13px}
+.zeile .aktion{flex:none;width:58px;height:58px;border-radius:18px;font-size:26px;background:var(--wasser-h);display:flex;align-items:center;justify-content:center}
+.zeile .aktion.duenger{background:var(--salbei-h)}
+.zeile .aktion.topf{background:var(--terra-h)}
+.zeile.erledigt{opacity:.55}
+.raumtitel{font-weight:800;color:var(--grau);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:14px 4px 8px}
+.demnaechst{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.demnaechst::-webkit-scrollbar{display:none}
+.tag{flex:none;width:112px;background:var(--karte);border-radius:18px;box-shadow:var(--sh);padding:10px;text-align:center}
+.tag b{display:block;font-family:Fredoka;font-weight:600}
+.minis{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:6px}
+.minis img{width:28px;height:28px;border-radius:9px}
+
+/* Raumplan */
+.raum{background:var(--karte);border-radius:24px;box-shadow:var(--sh);padding:14px 14px 16px;margin-bottom:16px}
+.raum h3{font-size:18px;display:flex;gap:8px;align-items:center}
+.raum h3 small{font-family:Nunito;font-size:13px;color:var(--grau);font-weight:700;margin-left:auto}
+.regal{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;margin-top:12px;padding-bottom:10px;border-bottom:7px solid #E9D3B6;border-radius:0 0 4px 4px}
+.kachel{text-align:center}
+.kachel b{display:block;font-size:14px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kachel small{display:block;font-size:12px;color:var(--grau);margin-top:-2px}
+.kachel.neu .fig{display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--salbei);background:var(--salbei-h);border:2px dashed var(--salbei)}
+
+/* Plan */
+.plantag{display:flex;gap:12px;background:var(--karte);border-radius:18px;box-shadow:var(--sh);padding:12px;margin-bottom:10px}
+.plantag .datum{flex:none;width:56px;text-align:center;border-right:2px solid var(--linie);padding-right:10px}
+.plantag .datum b{display:block;font-family:Fredoka;font-size:22px;line-height:1}
+.plantag .datum small{font-size:12px;color:var(--grau);font-weight:800;text-transform:uppercase}
+.plantag.heute .datum b{color:var(--terra)}
+.plantag .punkte{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--wasser-h);border-radius:99px;padding:3px 10px 3px 3px;font-size:14px;font-weight:700}
+.chip img{width:26px;height:26px;border-radius:50%}
+.chip.duenger{background:var(--salbei-h)}
+.chip.topf{background:var(--terra-h)}
+.ferienband{background:repeating-linear-gradient(45deg,#FFF4D6,#FFF4D6 10px,#FCEBC0 10px,#FCEBC0 20px);border-radius:16px;padding:10px 14px;font-weight:700;margin:10px 0}
+
+/* Detail */
+.detail-kopf{display:flex;align-items:center;gap:8px;margin:6px 0 10px}
+.detail-kopf h2{flex:1;font-size:24px}
+.gross{max-width:360px;margin:0 auto}
+.gross .fig{border-radius:28px;box-shadow:var(--sh)}
+.messer{height:14px;border-radius:99px;background:var(--wasser-h);overflow:hidden;margin:8px 0 4px}
+.messer i{display:block;height:100%;background:linear-gradient(90deg,#7DB4E3,var(--wasser));border-radius:99px;transition:width .8s}
+.messer.tief i{background:linear-gradient(90deg,#E59A72,var(--terra))}
+.aktionen{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.aktionen button{background:var(--karte);border-radius:18px;box-shadow:var(--sh);padding:10px 4px;font-size:12px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:2px}
+.aktionen button span{font-size:26px}
+.infos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.infos div{background:var(--karte);border-radius:16px;padding:10px 12px;box-shadow:var(--sh)}
+.infos div small{display:block;color:var(--grau);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.infos .breit{grid-column:1/-1}
+.zeitstrahl{position:relative;padding-left:22px}
+.zeitstrahl:before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:3px;background:var(--linie);border-radius:3px}
+.eintrag{position:relative;margin-bottom:12px}
+.eintrag:before{content:attr(data-i);position:absolute;left:-26px;top:0;width:22px;height:22px;background:var(--karte);border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh)}
+.eintrag small{color:var(--grau);font-size:13px}
+.eintrag img{display:block;width:150px;border-radius:14px;margin-top:6px}
+
+/* Sheet */
+.schleier{position:fixed;inset:0;background:rgba(58,46,40,.35);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.schleier.auf{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-height:92vh;overflow:auto;background:var(--creme);border-radius:26px 26px 0 0;padding:8px 0 calc(24px + var(--safe-b));transform:translateY(102%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sheet.auf{transform:none}
+.sheet .griff{width:44px;height:5px;border-radius:9px;background:var(--linie);margin:4px auto 10px}
+.sheet h2{font-size:22px;margin-bottom:12px}
+.feld{margin-bottom:14px}
+.feld label{display:block;font-weight:800;font-size:14px;margin-bottom:5px}
+.feld input[type=text],.feld input[type=date],.feld input[type=time],.feld input[type=password],.feld select,.feld textarea{width:100%;border:2px solid var(--linie);background:var(--karte);border-radius:14px;padding:11px 12px;outline:none}
+.feld input:focus,.feld select:focus,.feld textarea:focus{border-color:var(--salbei)}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:44px;height:44px;border-radius:14px;background:var(--salbei-h);font-size:22px;font-weight:800;color:var(--salbei-d)}
+.stepper output{min-width:90px;text-align:center;font-weight:800;font-size:17px}
+.wahl{display:flex;gap:8px;flex-wrap:wrap}
+.wahl button{border:2px solid var(--linie);background:var(--karte);border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
+.wahl button.akt{border-color:var(--salbei);background:var(--salbei-h);color:var(--salbei-d)}
+.figwahl{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.figwahl button{border-radius:14px;overflow:hidden;border:3px solid transparent;padding:0;background:var(--fig)}
+.figwahl button.akt{border-color:var(--salbei)}
+.figwahl img{display:block;width:100%}
+.fotowahl{display:flex;gap:12px;align-items:center}
+.fotowahl .vorschau{width:84px;height:84px;border-radius:18px;background:var(--fig) center/cover;flex:none;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:var(--sh)}
+.treffer{display:flex;gap:12px;align-items:center;background:var(--karte);border-radius:16px;box-shadow:var(--sh);padding:10px;margin-bottom:8px;width:100%;text-align:left}
+.treffer img{width:54px;height:54px;border-radius:12px}
+.treffer b{display:block}
+.treffer .score{margin-left:auto;font-weight:800;color:var(--salbei-d)}
+.liste .treffer{padding:8px}
+.grosswahl{display:grid;gap:10px}
+.grosswahl button{display:flex;gap:14px;align-items:center;background:var(--karte);border-radius:18px;box-shadow:var(--sh);padding:14px;text-align:left}
+.grosswahl button span{font-size:32px}
+.grosswahl button small{display:block;color:var(--grau);font-size:13px}
+.schritte{padding-left:20px}
+.schritte li{margin-bottom:9px}
+.schritte code,.code{background:var(--salbei-h);border-radius:8px;padding:1px 6px;font-size:13px;word-break:break-all}
+.mehr-zeile{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--linie)}
+.mehr-zeile:last-child{border-bottom:0}
+.mehr-zeile .t{flex:1}
+.mehr-zeile .t small{display:block;color:var(--grau);font-size:13px}
+.schalter{width:52px;height:31px;border-radius:99px;background:#DDD3C4;position:relative;flex:none;transition:background .2s}
+.schalter:after{content:"";position:absolute;left:3px;top:3px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.schalter.an{background:var(--salbei)}
+.schalter.an:after{transform:translateX(21px)}
+.toast{position:fixed;left:50%;bottom:calc(92px + var(--safe-b));transform:translate(-50%,20px);background:var(--text);color:#fff;border-radius:16px;padding:11px 16px;font-weight:700;z-index:60;opacity:0;pointer-events:none;transition:.25s;display:flex;gap:12px;align-items:center;width:max-content;max-width:92vw}
+.toast.auf{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{color:#BFE0C3;font-weight:800}
+.willkommen{text-align:center;padding-top:30px}
+.willkommen img{width:160px;border-radius:36px;box-shadow:var(--sh)}
+.willkommen h1{font-size:34px;color:var(--salbei-d);margin:16px 0 6px}
+#druck{display:none}
+@media print{
+  body *{visibility:hidden}
+  #druck,#druck *{visibility:visible}
+  #druck{display:block;position:absolute;left:0;top:0;width:100%;font:12pt/1.5 Nunito,sans-serif;color:#000}
+  #druck img{width:60px;height:60px;border-radius:10px;vertical-align:middle;margin-right:10px}
+  #druck h1{font-size:20pt}
+  #druck .dz{border-bottom:1px solid #ccc;padding:6px 0;page-break-inside:avoid}
+  @page{margin:15mm}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <img src="icon-192.png" alt="">
+  <h1>Pflanzis</h1>
+  <div class="sync" id="sync"><i></i><span>lokal</span></div>
+</div></header>
+
+<main class="wrap" id="view"></main>
+
+<nav class="tabs"><div class="wrap">
+  <button data-tab="heute"><span>💧</span>Heute</button>
+  <button data-tab="pflanzen"><span>🪴</span>Pflanzen</button>
+  <button data-tab="plan"><span>📅</span>Plan</button>
+  <button data-tab="mehr"><span>⚙️</span>Mehr</button>
+</div></nav>
+
+<div class="schleier" id="schleier"></div>
+<div class="sheet" id="sheet"><div class="griff"></div><div class="wrap" id="sheetInhalt"></div></div>
+<div class="toast" id="toast"></div>
+<div id="druck"></div>
+<input type="file" id="fotoInput" accept="image/*" hidden>
+
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script>
+'use strict';
+/* ============ Hilfen ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const TAG=86400000;
+const WT=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const pad=n=>String(n).padStart(2,'0');
+function iso(d){d=new Date(d);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function ausIso(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+const heute=()=>iso(new Date());
+function plusTage(s,n){const d=ausIso(s);d.setDate(d.getDate()+n);return iso(d)}
+function tageZwischen(a,b){return Math.round((ausIso(b)-ausIso(a))/TAG)}
+function kurz(s){const d=ausIso(s);return `${WT[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`}
+function relativ(s){
+  const n=tageZwischen(heute(),s);
+  if(n===0)return 'heute';if(n===1)return 'morgen';if(n===-1)return 'gestern';
+  if(n>1)return n<7?`in ${n} Tagen`:kurz(s);
+  return `vor ${-n} Tagen`;
+}
+const figSrc=f=>`img/fig/${f||'pflanze'}.jpg`;
+
+/* ============ Daten & Sync ============ */
+const LS='pflanzis-v1',LSC='pflanzis-code',LSN='pflanzis-ich',LSA='pflanzis-ansicht';
+const COLS=['pflanzen','tagebuch','raeume','einstellungen'];
+let S={pflanzen:[],tagebuch:[],raeume:[],einstellungen:[]};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){}
+function speichern(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){toast('Speicher fast voll: bitte alte Tagebuch-Fotos löschen')}}
+let fb={db:null,on:false,unsub:[]};
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+
+// Code aus Einladungslink übernehmen (bleibt in der Adresse, damit «Zum Home-Bildschirm» ihn mitnimmt)
+const P=new URLSearchParams(location.search);
+if(P.get('code')&&P.get('code').length>=16)lsSet(LSC,P.get('code'));
+const code=()=>lsGet(LSC);
+const pfad=()=>code()?`pflanzis/${code()}`:null;
+
+function ladeSkript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+async function initSync(){
+  fb.unsub.forEach(u=>u());fb.unsub=[];fb.on=false;fb.geladen=false;
+  const cfg=window.FIREBASE_CONFIG,p=pfad();
+  if(!cfg||!p){zeichne();return}
+  try{
+    if(!window.firebase){for(const f of['app','firestore'])await ladeSkript(`https://www.gstatic.com/firebasejs/10.12.0/firebase-${f}-compat.js`)}
+    if(!firebase.apps.length)firebase.initializeApp(cfg);
+    fb.db=firebase.firestore();
+    for(const col of COLS){
+      S[col].forEach(x=>fb.db.doc(`${p}/${col}/${x.id}`).set(x,{merge:true}).catch(()=>{}));
+      fb.unsub.push(fb.db.collection(`${p}/${col}`).onSnapshot(snap=>{
+        let ch=false;
+        snap.docChanges().forEach(c=>{
+          const d=c.doc.data(),i=S[col].findIndex(x=>x.id===d.id);
+          if(c.type==='removed'){if(i>=0){S[col].splice(i,1);ch=true}}
+          else if(i<0){S[col].push(d);ch=true}
+          else if((d.updated||0)>(S[col][i].updated||0)){S[col][i]=d;ch=true}
+        });
+        fb.on=true;
+        if(col==='pflanzen'&&!fb.geladen){fb.geladen=true;exportPlanen()}
+        if(ch){speichern();zeichne();exportPlanen()}else zeigeSync();
+      },e=>{fb.on=false;console.warn(e);zeigeSync()}));
+    }
+  }catch(e){console.warn('Sync nicht verfügbar',e);fb.on=false}
+  zeichne();
+}
+function put(col,item){
+  item.updated=Date.now();
+  const i=S[col].findIndex(x=>x.id===item.id);
+  if(i<0)S[col].push(item);else S[col][i]=item;
+  speichern();
+  const p=pfad();if(fb.db&&p)fb.db.doc(`${p}/${col}/${item.id}`).set(item).catch(console.warn);
+  exportPlanen();
+}
+function del(col,id){
+  S[col]=S[col].filter(x=>x.id!==id);speichern();
+  const p=pfad();if(fb.db&&p)fb.db.doc(`${p}/${col}/${id}`).delete().catch(console.warn);
+  exportPlanen();
+}
+function zeigeSync(){const el=$('#sync');el.classList.toggle('on',fb.on);$('span',el).textContent=fb.on?'verbunden':(code()?'offline':'lokal')}
+
+/* ============ Einstellungen ============ */
+const STD={id:'haushalt',saison:true,zeit:'18:00',plantnetKey:'',ferienVon:'',ferienBis:''};
+const E=()=>Object.assign({},STD,S.einstellungen.find(x=>x.id==='haushalt')||{});
+function setE(obj){put('einstellungen',Object.assign(E(),obj))}
+const ich=()=>lsGet(LSN)||'';
+
+const STD_RAEUME=[['wohnzimmer','Wohnzimmer','🛋️'],['kueche','Küche','🍳'],['schlafzimmer','Schlafzimmer','🛏️'],['bad','Bad','🛁'],['buero','Büro','💻'],['balkon','Balkon','🌇']];
+function raeumeSicherstellen(){
+  if(S.raeume.length)return;
+  STD_RAEUME.forEach(([id,name,emoji],i)=>put('raeume',{id:'raum-'+id,name,emoji,reihe:i}));
+}
+const raeume=()=>[...S.raeume].sort((a,b)=>(a.reihe??99)-(b.reihe??99));
+const raum=id=>S.raeume.find(r=>r.id===id);
+const raumName=id=>{const r=raum(id);return r?`${r.emoji} ${r.name}`:'Ohne Raum'};
+const pflanze=id=>S.pflanzen.find(p=>p.id===id);
+
+/* ============ Pflegelogik ============ */
+// Faktor je Monat (Jan..Dez): Winter seltener, Hochsommer öfter giessen
+const FAKTOR={n:[1.5,1.4,1.2,1,1,.9,.85,.85,1,1.1,1.3,1.5],k:[2.5,2.2,1.6,1.1,1,1,1,1,1.1,1.5,2,2.5]};
+function abstand(p,datum){
+  const basis=Math.max(1,p.tage||7);
+  if(!E().saison)return basis;
+  const m=ausIso(datum||heute()).getMonth();
+  return Math.max(1,Math.round(basis*FAKTOR[p.saisonTyp==='k'?'k':'n'][m]));
+}
+const letzte=p=>p.letzteGiessung||iso(p.erstellt||Date.now());
+function naechste(p){const l=letzte(p);return plusTage(l,abstand(p,l))}
+function durst(p){const l=letzte(p);return tageZwischen(l,heute())/abstand(p,l)}
+function stufe(p){
+  const n=tageZwischen(heute(),naechste(p));
+  if(n<0)return 3;if(n===0)return 2;if(durst(p)>=.6)return 1;return 0;
+}
+const imSaison=s=>{const m=ausIso(s).getMonth();return m>=2&&m<=8};
+function inSaisonSchieben(s){
+  if(imSaison(s))return s;
+  const d=ausIso(s);const y=d.getMonth()>=9?d.getFullYear()+1:d.getFullYear();
+  return `${y}-03-01`;
+}
+function naechsteDuengung(p){
+  if(!p.duengen)return null;
+  const basis=p.letzteDuengung||iso(p.erstellt||Date.now());
+  return inSaisonSchieben(plusTage(basis,p.duengen));
+}
+function naechstesUmtopfen(p){
+  if(!p.letztesUmtopfen)return null;
+  const d=ausIso(p.letztesUmtopfen);
+  const y=d.getMonth()>=2?d.getFullYear()+1:d.getFullYear();
+  return `${y}-03-15`;
+}
+function inFerien(s){const e=E();return e.ferienVon&&e.ferienBis&&s>=e.ferienVon&&s<=e.ferienBis}
+
+// Plan über N Tage: { 'JJJJ-MM-TT': {g:[ids], d:[ids], u:[ids]} } – Überfälliges landet auf heute
+function plan(n,ab){
+  ab=ab||heute();const ende=plusTage(ab,n-1),out={};
+  const add=(tag,art,id)=>{(out[tag]=out[tag]||{g:[],d:[],u:[]})[art].push(id)};
+  for(const p of S.pflanzen){
+    let t=naechste(p),sicher=0;
+    if(t<ab){add(ab,'g',p.id);t=plusTage(ab,abstand(p,ab))}
+    while(t<=ende&&sicher++<100){add(t,'g',p.id);t=plusTage(t,abstand(p,t))}
+    let d=naechsteDuengung(p);sicher=0;
+    if(d&&d<ab&&imSaison(ab)){add(ab,'d',p.id);d=inSaisonSchieben(plusTage(ab,p.duengen))}
+    while(d&&d>=ab&&d<=ende&&sicher++<50){add(d,'d',p.id);d=inSaisonSchieben(plusTage(d,p.duengen))}
+    const u=naechstesUmtopfen(p);
+    if(u&&u<=ende)add(u<ab?ab:u,'u',p.id);
+  }
+  return out;
+}
+const raumReihe=p=>{const r=raum(p.raum);return r?(r.reihe??99):999};
+const nachRaum=ids=>ids.map(pflanze).filter(Boolean).sort((a,b)=>raumReihe(a)-raumReihe(b)||a.name.localeCompare(b.name));
+
+/* ============ Export für den Kurzbefehl (Erinnerungen) ============ */
+let exportTimer=null;
+function exportPlanen(){clearTimeout(exportTimer);exportTimer=setTimeout(exportSchreiben,1500)}
+function erinnerungsDaten(){
+  const pl=plan(31),out={},e=E();
+  for(const tag of Object.keys(pl).sort()){
+    if(inFerien(tag))continue;
+    const t=pl[tag],g=nachRaum(t.g),d=nachRaum(t.d),u=nachRaum(t.u);
+    if(!g.length&&!d.length&&!u.length)continue;
+    const teile=[];
+    if(g.length)teile.push(`${g.length} giessen`);
+    if(d.length)teile.push(`${d.length} düngen`);
+    if(u.length)teile.push(`${u.length} umtopfen`);
+    const zeilen=[];
+    if(g.length)zeilen.push('💧 Giessen:',...g.map(p=>`• ${p.name} (${raum(p.raum)?.name||'ohne Raum'})`));
+    if(d.length)zeilen.push('🌱 Düngen:',...d.map(p=>`• ${p.name}`));
+    if(u.length)zeilen.push('🪴 Umtopfen prüfen:',...u.map(p=>`• ${p.name}`));
+    out[tag]={
+      titel:`${g.length?'💧':'🌱'} Pflanzis ${kurz(tag)}: ${teile.join(', ')}`,
+      notiz:zeilen.join('\n'),
+      zeit:`${tag} ${e.zeit||'18:00'}`,
+      url:`${window.APP_URL||location.origin+location.pathname}?code=${code()}&runde=${tag}`
+    };
+  }
+  return out;
+}
+async function exportSchreiben(){
+  const p=pfad();if(!fb.db||!p||!fb.geladen)return false;
+  try{await fb.db.doc(`${p}/export/erinnerungen`).set({json:JSON.stringify(erinnerungsDaten()),stand:new Date().toISOString()});return true}
+  catch(e){console.warn(e);return false}
+}
+const exportUrl=()=>{const c=window.FIREBASE_CONFIG;return `https://firestore.googleapis.com/v1/projects/${c.projectId}/databases/(default)/documents/pflanzis/${code()}/export/erinnerungen?key=${c.apiKey}`};
+
+/* ============ Aktionen ============ */
+function logEintrag(pid,typ,extra){const t={id:uid(),pflanze:pid,typ,ts:Date.now(),tag:heute(),wer:ich(),...extra};put('tagebuch',t);return t}
+function giessen(id,stumm){
+  const p=pflanze(id);if(!p)return;
+  const vorher={letzteGiessung:p.letzteGiessung,letzteWer:p.letzteWer};
+  p.letzteGiessung=heute();p.letzteWer=ich();put('pflanzen',p);
+  const t=logEintrag(id,'giessen');
+  tropfenAnimation(id);
+  if(!stumm)toast(`💚 ${p.name} sagt danke!`,'Rückgängig',()=>{Object.assign(p,vorher);put('pflanzen',p);del('tagebuch',t.id);zeichne()});
+  setTimeout(zeichne,700);
+}
+function duengen(id){const p=pflanze(id);p.letzteDuengung=heute();put('pflanzen',p);logEintrag(id,'duengen');toast(`🌱 ${p.name} gedüngt`);zeichne()}
+function umtopfen(id){const p=pflanze(id);p.letztesUmtopfen=heute();put('pflanzen',p);logEintrag(id,'umtopfen');toast(`🪴 ${p.name} umgetopft`);zeichne()}
+function tropfenAnimation(id){
+  $$(`.fig[data-id="${id}"]`).forEach(f=>{
+    for(let i=0;i<7;i++){const t=document.createElement('i');t.className='tropfen';t.style.left=(15+Math.random()*70)+'%';t.style.animationDelay=(i*0.08)+'s';f.appendChild(t);setTimeout(()=>t.remove(),1500)}
+  });
+}
+
+/* ============ Darstellung: Figur ============ */
+function tank(p){
+  const rest=Math.max(0,Math.min(1,1-durst(p)));const h=Math.round(26*rest);const farbe=rest<.25?'#C9693E':'#4F93D0';
+  return `<svg class="tank" viewBox="0 0 22 30" aria-hidden="true"><defs><clipPath id="c${p.id}"><path d="M11 1C11 1 2 12 2 19a9 9 0 0018 0C20 12 11 1 11 1z"/></clipPath></defs>
+  <path d="M11 1C11 1 2 12 2 19a9 9 0 0018 0C20 12 11 1 11 1z" fill="#fff" fill-opacity=".85"/>
+  <rect clip-path="url(#c${p.id})" x="0" y="${29-h}" width="22" height="${h+1}" fill="${farbe}"/>
+  <path d="M11 1C11 1 2 12 2 19a9 9 0 0018 0C20 12 11 1 11 1z" fill="none" stroke="${farbe}" stroke-width="1.6"/></svg>`;
+}
+function figur(p,opt={}){
+  const ansicht=lsGet(LSA)||'figur';
+  const s=stufe(p);
+  const nurFoto=ansicht==='foto'&&p.foto;
+  const haupt=nurFoto?p.foto:figSrc(p.figur);
+  return `<div class="fig${nurFoto?' nurfoto':''}" data-id="${p.id}" data-d="${nurFoto?0:s}">
+    <img class="f" src="${esc(haupt)}" alt="" loading="lazy">
+    ${!nurFoto&&p.foto&&!opt.ohneFoto?`<img class="foto" src="${esc(p.foto)}" alt="">`:''}
+    ${opt.tank!==false?tank(p):''}
+    ${s===3&&opt.badge!==false?'<span class="durst">Durst!</span>':''}
+  </div>`;
+}
+
+/* ============ Ansichten ============ */
+let tab=P.get('runde')?'heute':(P.get('pflanze')?'pflanzen':'heute');
+let detailId=P.get('pflanze')||null;
+let erledigtHeute=new Set();
+
+function zeichne(){
+  zeigeSync();
+  const v=$('#view');
+  $$('.tabs button').forEach(b=>b.classList.toggle('akt',b.dataset.tab===tab));
+  const fällig=S.pflanzen.filter(p=>stufe(p)>=2).length;
+  const hb=$('.tabs [data-tab=heute]');$('.badge',hb)?.remove();
+  if(fällig)hb.insertAdjacentHTML('beforeend',`<span class="badge">${fällig}</span>`);
+  if(!code()){v.innerHTML=willkommen();return}
+  if(!ich()){if(!$('#nameIn'))v.innerHTML=nameFrage();return}
+  if(detailId&&pflanze(detailId)){v.innerHTML=detail(pflanze(detailId));return}
+  v.innerHTML=({heute:ansichtHeute,pflanzen:ansichtPflanzen,plan:ansichtPlan,mehr:ansichtMehr})[tab]();
+}
+
+function willkommen(){
+  return `<div class="willkommen">
+    <img src="img/fig/pflanze.jpg" alt="">
+    <h1>Hoi! Ich bin Pflanzis.</h1>
+    <p class="leise">Ich sage dir, welche Pflanze wann Wasser braucht.</p>
+    <div class="grosswahl" style="margin-top:24px;text-align:left">
+      <button data-a="neuerHaushalt"><span>🏡</span><div><b>Neu starten</b><small>Einen neuen Pflanzen-Haushalt anlegen</small></div></button>
+      <button data-a="codeEingeben"><span>🔑</span><div><b>Ich habe einen Code</b><small>Einem bestehenden Haushalt beitreten</small></div></button>
+    </div></div>`;
+}
+function nameFrage(){
+  return `<div class="willkommen">
+    <img src="img/fig/pflanze.jpg" alt="">
+    <h1>Wie heisst du?</h1>
+    <p class="leise">Damit ihr seht, wer zuletzt gegossen hat.</p>
+    <div class="feld" style="margin-top:20px"><input type="text" id="nameIn" placeholder="Dein Vorname" autocomplete="given-name"></div>
+    <button class="btn voll breit" data-a="nameSpeichern">Los geht's 🌿</button></div>`;
+}
+
+function begruessung(){
+  const h=new Date().getHours();
+  return (h<11?'Guten Morgen':h<17?'Hallo':'Guten Abend')+', '+esc(ich());
+}
+function ansichtHeute(){
+  if(!S.pflanzen.length)return `${heldBlock('Noch keine Pflanzen da.','Füge deine erste Pflanze hinzu, ich kümmere mich um den Plan.')}
+    <div style="margin-top:20px"><button class="btn voll breit" data-a="neuePflanze">＋ Erste Pflanze hinzufügen</button></div>`;
+  const t=heute(),pl=plan(8)[t]||{g:[],d:[],u:[]};
+  const g=nachRaum(pl.g),d=nachRaum(pl.d),u=nachRaum(pl.u);
+  const offen=g.length;
+  let html='';
+  if(inFerien(t))html+=`<div class="ferienband">🌴 Ferienmodus bis ${kurz(E().ferienBis)}: Die Pflanzensitterin bzw. der Pflanzensitter hat den Plan.</div>`;
+  html+=offen?heldBlock(`${offen} ${offen===1?'Pflanze hat':'Pflanzen haben'} Durst`,`${begruessung()}! Heute ist eine kleine Giessrunde dran.`)
+    :heldBlock('Alle sind zufrieden 🌿',`${begruessung()}! Heute muss nichts gegossen werden.`);
+  if(g.length){
+    html+=`<div class="abschnitt"><h2>💧 Heute giessen</h2>${g.length>1?'<button class="btn klein wasser" data-a="alleGiessen">Alle gegossen</button>':''}</div>`;
+    let letzterRaum=null;
+    for(const p of g){
+      if(p.raum!==letzterRaum){html+=`<div class="raumtitel">${esc(raumName(p.raum))}</div>`;letzterRaum=p.raum}
+      const ueber=-tageZwischen(heute(),naechste(p));
+      html+=`<div class="zeile">
+        <button style="padding:0" data-a="oeffne" data-id="${p.id}">${figur(p,{badge:false})}</button>
+        <div class="info" data-a="oeffne" data-id="${p.id}"><b>${esc(p.name)}</b>
+          <small>${ueber>0?`<span class="pill terra">${ueber} ${ueber===1?'Tag':'Tage'} überfällig</span>`:'heute fällig'}</small>
+          <small>${esc(MENGE[p.menge||'mittel'])}</small></div>
+        <button class="aktion" data-a="giessen" data-id="${p.id}" aria-label="gegossen">💧</button></div>`;
+    }
+  }
+  if(d.length){
+    html+=`<div class="abschnitt"><h2>🌱 Düngen</h2></div>`;
+    for(const p of d)html+=`<div class="zeile"><button style="padding:0" data-a="oeffne" data-id="${p.id}">${figur(p,{tank:false,badge:false})}</button>
+      <div class="info"><b>${esc(p.name)}</b><small>Flüssigdünger ins Giesswasser (halbe Dosis)</small></div>
+      <button class="aktion duenger" data-a="duengen" data-id="${p.id}">🌱</button></div>`;
+  }
+  if(u.length){
+    html+=`<div class="abschnitt"><h2>🪴 Umtopfen prüfen</h2></div>`;
+    for(const p of u)html+=`<div class="zeile"><button style="padding:0" data-a="oeffne" data-id="${p.id}">${figur(p,{tank:false,badge:false})}</button>
+      <div class="info"><b>${esc(p.name)}</b><small>Wurzeln unten raus? Dann 2–4 cm grösserer Topf.</small></div>
+      <button class="aktion topf" data-a="umtopfen" data-id="${p.id}">🪴</button></div>`;
+  }
+  // Demnächst
+  const pl8=plan(8),tage=Object.keys(pl8).filter(x=>x>t).sort().slice(0,7);
+  if(tage.length){
+    html+=`<div class="abschnitt"><h2>Demnächst</h2></div><div class="demnaechst">`;
+    for(const tag of tage){const ids=[...new Set([...pl8[tag].g,...pl8[tag].d])];
+      html+=`<div class="tag"><b>${kurz(tag)}</b><small class="leise">${relativ(tag)}</small><div class="minis">${ids.slice(0,6).map(id=>`<img src="${figSrc(pflanze(id)?.figur)}" alt="">`).join('')}</div></div>`}
+    html+=`</div>`;
+  }
+  return html;
+}
+function heldBlock(titel,text){
+  return `<div class="held"><img class="maskottchen" src="img/fig/pflanze.jpg" alt=""><div class="blase"><h2>${titel}</h2><div class="leise">${text}</div></div></div>`;
+}
+
+function ansichtPflanzen(){
+  const ansicht=lsGet(LSA)||'figur';
+  let html=`<div class="abschnitt"><h2>Raumplan</h2>
+    <div class="wahl"><button class="${ansicht==='figur'?'akt':''}" data-a="ansicht" data-v="figur">🎨 Figur</button><button class="${ansicht==='foto'?'akt':''}" data-a="ansicht" data-v="foto">📷 Foto</button></div></div>`;
+  const gruppen=[...raeume().map(r=>r.id),null];
+  for(const rid of gruppen){
+    const ps=S.pflanzen.filter(p=>rid?p.raum===rid:!raum(p.raum)).sort((a,b)=>a.name.localeCompare(b.name));
+    if(!rid&&!ps.length)continue;
+    const r=raum(rid);
+    if(rid&&!ps.length&&S.pflanzen.length)continue;
+    html+=`<div class="raum"><h3>${r?`${esc(r.emoji)} ${esc(r.name)}`:'📦 Ohne Raum'}<small>${ps.length} ${ps.length===1?'Pflanze':'Pflanzen'}</small></h3><div class="regal">`;
+    for(const p of ps)html+=`<button class="kachel" data-a="oeffne" data-id="${p.id}">${figur(p)}<b>${esc(p.name)}</b><small>💧 ${relativ(naechste(p))}</small></button>`;
+    html+=`<button class="kachel neu" data-a="neuePflanze" data-raum="${rid||''}"><div class="fig">＋</div><b>Pflanze</b><small>hinzufügen</small></button></div></div>`;
+  }
+  return html;
+}
+
+function ansichtPlan(){
+  const pl=plan(21),t=heute(),e=E();
+  let html=`<div class="abschnitt"><h2>Giessplan</h2></div>
+    <div class="karte"><b>📲 Erinnerungen</b><div class="leise" style="margin:4px 0 10px">Der Kurzbefehl «Pflanzis» legt jeden Morgen die Giessrunde des Tages in der Erinnerungen-App an (Erinnerung um ${esc(e.zeit)} Uhr).</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn voll klein" data-a="anErinnerungen">Jetzt an Erinnerungen senden</button><button class="btn klein" data-a="anleitungErinnerungen">Einrichten</button><button class="btn klein" data-a="ics">📅 Kalender</button></div></div>`;
+  if(e.ferienVon&&e.ferienBis&&e.ferienBis>=t)html+=`<div class="ferienband">🌴 Ferien ${kurz(e.ferienVon)} – ${kurz(e.ferienBis)} <button class="btn klein" data-a="ferienplan" style="margin-left:6px">Plan für Sitter</button></div>`;
+  const tage=Object.keys(pl).sort();
+  if(!tage.length)html+=`<div class="leer">Noch nichts geplant. Füge Pflanzen hinzu.</div>`;
+  for(const tag of tage){
+    const x=pl[tag],d=ausIso(tag);
+    html+=`<div class="plantag${tag===t?' heute':''}"><div class="datum"><small>${WT[d.getDay()]}</small><b>${d.getDate()}</b><small>${d.toLocaleDateString('de-CH',{month:'short'})}</small></div><div class="punkte">
+      ${inFerien(tag)?'<span class="pill">🌴 Ferien</span>':''}
+      ${nachRaum(x.g).map(p=>`<span class="chip"><img src="${figSrc(p.figur)}" alt="">${esc(p.name)}</span>`).join('')}
+      ${nachRaum(x.d).map(p=>`<span class="chip duenger"><img src="${figSrc(p.figur)}" alt="">🌱 ${esc(p.name)}</span>`).join('')}
+      ${nachRaum(x.u).map(p=>`<span class="chip topf"><img src="${figSrc(p.figur)}" alt="">🪴 ${esc(p.name)}</span>`).join('')}
+    </div></div>`;
+  }
+  return html;
+}
+
+function ansichtMehr(){
+  const e=E();
+  return `<div class="abschnitt"><h2>Mehr</h2></div>
+  <div class="karte">
+    <div class="mehr-zeile"><div class="t"><b>👤 Du bist</b><small>${esc(ich())}</small></div><button class="btn klein" data-a="nameAendern">Ändern</button></div>
+    <div class="mehr-zeile"><div class="t"><b>🏡 Haushalt teilen</b><small>Einladungslink an deine Partnerin bzw. deinen Partner schicken</small></div><button class="btn klein" data-a="einladen">Teilen</button></div>
+    <div class="mehr-zeile"><div class="t"><b>🔑 Haushalts-Code</b><small><span class="code">${esc(code())}</span></small></div><button class="btn klein" data-a="codeEingeben">Wechseln</button></div>
+  </div>
+  <div class="abschnitt"><h2>Erinnerungen & Erkennung</h2></div>
+  <div class="karte">
+    <div class="mehr-zeile"><div class="t"><b>📲 Erinnerungen-App</b><small>Kurzbefehl einrichten, Uhrzeit ${esc(e.zeit)}</small></div><button class="btn klein" data-a="anleitungErinnerungen">Anleitung</button></div>
+    <div class="mehr-zeile"><div class="t"><b>⏰ Erinnerungszeit</b><small>Wann das iPhone an die Giessrunde erinnert</small></div><input type="time" value="${esc(e.zeit)}" data-a="zeit" style="border:2px solid var(--linie);border-radius:12px;padding:6px;background:var(--karte)"></div>
+    <div class="mehr-zeile"><div class="t"><b>📷 Pl@ntNet (Pflanzenerkennung)</b><small>${e.plantnetKey?'Schlüssel eingetragen ✓':'Noch kein Schlüssel'}</small></div><button class="btn klein" data-a="plantnet">${e.plantnetKey?'Ändern':'Einrichten'}</button></div>
+  </div>
+  <div class="abschnitt"><h2>Pflege</h2></div>
+  <div class="karte">
+    <div class="mehr-zeile"><div class="t"><b>❄️ Jahreszeiten-Anpassung</b><small>Im Winter seltener, im Hochsommer öfter giessen. Kakteen im Winter fast trocken.</small></div><button class="schalter${e.saison?' an':''}" data-a="saison" aria-label="Jahreszeiten"></button></div>
+    <div class="mehr-zeile"><div class="t"><b>🌴 Ferienmodus</b><small>${e.ferienVon&&e.ferienBis?`${kurz(e.ferienVon)} – ${kurz(e.ferienBis)}`:'Plan für die Pflanzensitterin bzw. den Pflanzensitter'}</small></div><button class="btn klein" data-a="ferien">Öffnen</button></div>
+    <div class="mehr-zeile"><div class="t"><b>🚪 Räume</b><small>${S.raeume.length} Räume, Reihenfolge = Giessrunde</small></div><button class="btn klein" data-a="raeume">Bearbeiten</button></div>
+  </div>
+  <div class="abschnitt"><h2>Daten</h2></div>
+  <div class="karte">
+    <div class="mehr-zeile"><div class="t"><b>💾 Sicherung</b><small>Alle Pflanzen und das Tagebuch als Datei</small></div><button class="btn klein" data-a="backup">Sichern</button></div>
+    <div class="mehr-zeile"><div class="t"><b>📥 Sicherung laden</b><small>Datei wieder einlesen</small></div><button class="btn klein" data-a="restore">Laden</button></div>
+  </div>
+  <p class="leise" style="text-align:center;margin:24px 0">Pflanzis 1.0 · mit 💚 gemacht</p>`;
+}
+
+function detail(p){
+  const n=naechste(p),ab=abstand(p),basis=p.tage||7;
+  const rest=Math.max(0,Math.min(1,1-durst(p)));
+  const eintraege=S.tagebuch.filter(t=>t.pflanze===p.id).sort((a,b)=>b.ts-a.ts).slice(0,40);
+  const ICON={giessen:'💧',duengen:'🌱',umtopfen:'🪴',notiz:'📝'};
+  const TXT={giessen:'gegossen',duengen:'gedüngt',umtopfen:'umgetopft',notiz:'Notiz'};
+  const nd=naechsteDuengung(p),nu=naechstesUmtopfen(p);
+  return `<div class="detail-kopf"><button class="btn klein" data-a="zurueck">‹ Zurück</button><h2></h2><button class="btn klein" data-a="bearbeiten" data-id="${p.id}">✏️ Bearbeiten</button></div>
+  <div class="gross">${figur(p,{ohneFoto:true})}</div>
+  <h2 style="font-size:28px;margin-top:14px">${esc(p.name)}</h2>
+  <div class="leise">${p.art?`<i>${esc(p.art)}</i> · `:''}${esc(raumName(p.raum))}</div>
+  <div class="messer${rest<.25?' tief':''}"><i style="width:${Math.round(rest*100)}%"></i></div>
+  <div class="leise">Wasservorrat ${Math.round(rest*100)} % · nächstes Mal <b>${relativ(n)}</b> (${kurz(n)})${p.letzteWer?` · zuletzt von ${esc(p.letzteWer)}`:''}</div>
+  <div class="aktionen">
+    <button data-a="giessen" data-id="${p.id}"><span>💧</span>Gegossen</button>
+    <button data-a="duengen" data-id="${p.id}"><span>🌱</span>Gedüngt</button>
+    <button data-a="umtopfen" data-id="${p.id}"><span>🪴</span>Umgetopft</button>
+    <button data-a="notiz" data-id="${p.id}"><span>📝</span>Tagebuch</button>
+  </div>
+  ${p.foto?`<div class="karte" style="padding:8px;margin-bottom:12px"><img src="${esc(p.foto)}" style="width:100%;border-radius:14px;display:block" alt="Foto"></div>`:''}
+  <div class="infos">
+    <div><small>Giessen</small>alle ${ab} Tage${ab!==basis?` <span class="leise">(Sommer ${basis})</span>`:''}</div>
+    <div><small>Menge</small>${esc((p.menge||'mittel').replace(/^./,c=>c.toUpperCase()))}</div>
+    <div><small>Düngen</small>${p.duengen?`alle ${p.duengen} Tage<br><span class="leise">nächstes: ${kurz(nd)}</span>`:'nie'}</div>
+    <div><small>Umtopfen</small>${nu?`ca. ${kurz(nu)}`:'kein Datum'}</div>
+    ${p.licht?`<div class="breit"><small>Licht</small>${esc(p.licht)}</div>`:''}
+    <div class="breit"><small>So giessen</small>${esc(MENGE[p.menge||'mittel'])}${p.tipp?`<br>${esc(p.tipp)}`:''}</div>
+    ${p.notiz?`<div class="breit"><small>Eigene Notiz</small>${esc(p.notiz)}</div>`:''}
+  </div>
+  <div class="abschnitt"><h2>📖 Tagebuch</h2></div>
+  ${eintraege.length?`<div class="zeitstrahl">${eintraege.map(t=>`<div class="eintrag" data-i="${ICON[t.typ]||'•'}">
+    <b>${TXT[t.typ]||t.typ}</b> <small>${kurz(t.tag||iso(t.ts))} ${t.wer?`· ${esc(t.wer)}`:''}</small>
+    ${t.text?`<div>${esc(t.text)}</div>`:''}${t.foto?`<img src="${esc(t.foto)}" alt="">`:''}
+    ${t.typ==='notiz'?`<button class="btn klein rot" style="margin-top:4px" data-a="eintragLoeschen" data-id="${t.id}">Löschen</button>`:''}
+  </div>`).join('')}</div>`:'<div class="leise">Noch keine Einträge.</div>'}`;
+}
+
+/* ============ Sheet ============ */
+function sheet(html){$('#sheetInhalt').innerHTML=html;$('#sheet').classList.add('auf');$('#schleier').classList.add('auf');$('#sheet').scrollTop=0}
+function zu(){$('#sheet').classList.remove('auf');$('#schleier').classList.remove('auf')}
+$('#schleier').onclick=zu;
+
+let toastTimer;
+function toast(text,knopf,fn){
+  const t=$('#toast');t.innerHTML=`<span>${esc(text)}</span>${knopf?`<button>${esc(knopf)}</button>`:''}`;
+  if(knopf)$('button',t).onclick=()=>{fn();t.classList.remove('auf')};
+  t.classList.add('auf');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('auf'),knopf?5000:2600);
+}
+
+/* ============ Fotos ============ */
+function fotoWaehlen(){return new Promise(ok=>{const i=$('#fotoInput');i.value='';i.onchange=()=>ok(i.files[0]||null);i.click()})}
+function verkleinern(datei,max,q){
+  return new Promise((ok,no)=>{
+    const img=new Image(),url=URL.createObjectURL(datei);
+    img.onload=()=>{
+      const s=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg',q));
+    };
+    img.onerror=no;img.src=url;
+  });
+}
+const dataZuBlob=d=>fetch(d).then(r=>r.blob());
+
+/* ============ Pflegedaten ============ */
+function pflegeFuer(art,gattung){
+  const a=(art||'').toLowerCase(),g=(gattung||a.split(' ')[0]||'').toLowerCase();
+  return PFLANZEN_DB.find(x=>x.a&&x.a.toLowerCase()===a)||PFLANZEN_DB.find(x=>x.g.toLowerCase()===g)||null;
+}
+function ausPflege(c,extra={}){
+  return Object.assign({name:c?c.de.replace(/ \(.*\)$/,''):'',figur:c?c.f:'pflanze',tage:c?c.tage:7,saisonTyp:c?c.s:'n',duengen:c?c.d:14,menge:c?c.m:'mittel',licht:c?c.licht:'',tipp:c?c.tipp:''},extra);
+}
+
+/* ============ Neue Pflanze ============ */
+let entwurf=null;
+function neuePflanze(raumId){
+  raeumeSicherstellen();
+  sheet(`<h2>Neue Pflanze</h2><div class="grosswahl">
+    <button data-a="erkennen" data-raum="${raumId||''}"><span>📷</span><div><b>Foto machen & erkennen</b><small>Pl@ntNet findet heraus, welche Pflanze es ist</small></div></button>
+    <button data-a="ausListe" data-raum="${raumId||''}"><span>📖</span><div><b>Aus der Liste wählen</b><small>${PFLANZEN_DB.length} Zimmerpflanzen mit Pflegeplan</small></div></button>
+    <button data-a="selbst" data-raum="${raumId||''}"><span>✏️</span><div><b>Selbst eingeben</b><small>Name und Giessabstand von Hand</small></div></button>
+  </div>`);
+}
+async function erkennen(raumId){
+  const key=E().plantnetKey;
+  const datei=await fotoWaehlen();if(!datei)return;
+  sheet(`<h2>Einen Moment …</h2><div class="leer"><img src="img/fig/pflanze.jpg" alt=""><div>Ich schaue mir das Foto an 🔍</div></div>`);
+  let gross,klein;
+  try{gross=await verkleinern(datei,1280,.85);klein=await verkleinern(datei,420,.7)}catch(e){sheet(`<h2>Foto konnte nicht gelesen werden</h2><button class="btn breit" data-a="zu">Schliessen</button>`);return}
+  if(!key){formular(ausPflege(null,{foto:klein,raum:raumId}),{hinweis:'Für die automatische Erkennung unter «Mehr → Pl@ntNet» einen Schlüssel eintragen. Du kannst die Pflanze aber auch so anlegen.'});return}
+  try{
+    const fd=new FormData();fd.append('organs','auto');fd.append('images',await dataZuBlob(gross),'pflanze.jpg');
+    const r=await fetch(`https://my-api.plantnet.org/v2/identify/all?api-key=${encodeURIComponent(key)}&lang=de&nb-results=5&include-related-images=false`,{method:'POST',body:fd});
+    if(r.status===404){formular(ausPflege(null,{foto:klein,raum:raumId}),{hinweis:'Pl@ntNet hat keine Pflanze erkannt. Tipp: ein Blatt gross und scharf fotografieren.'});return}
+    if(!r.ok)throw new Error(r.status===401||r.status===403?'Schlüssel ungültig oder Domain nicht freigegeben':r.status===429?'Tageslimit erreicht (500 Fotos)':'Fehler '+r.status);
+    const j=await r.json();
+    const res=(j.results||[]).slice(0,5);
+    window._treffer={res,klein,raumId};
+    sheet(`<h2>Ist es eine davon?</h2>
+      ${res.map((x,i)=>{const sp=x.species||{},c=pflegeFuer(sp.scientificNameWithoutAuthor,sp.genus?.scientificNameWithoutAuthor);
+        return `<button class="treffer" data-a="trefferWahl" data-i="${i}"><img src="${figSrc(c?.f)}" alt=""><div><b>${esc(sp.commonNames?.[0]||c?.de||sp.scientificNameWithoutAuthor)}</b><small class="leise"><i>${esc(sp.scientificNameWithoutAuthor)}</i>${c?'':' · Pflegeplan bitte prüfen'}</small></div><span class="score">${Math.round((x.score||0)*100)} %</span></button>`}).join('')}
+      <button class="btn breit" style="margin-top:8px" data-a="trefferWahl" data-i="-1">Keine davon, selbst eingeben</button>
+      <p class="leise" style="font-size:12px;margin-top:10px">Erkennung: Pl@ntNet</p>`);
+  }catch(e){formular(ausPflege(null,{foto:klein,raum:raumId}),{hinweis:'Erkennung nicht möglich: '+e.message})}
+}
+function ausListe(raumId,filter=''){
+  const f=filter.toLowerCase();
+  const liste=PFLANZEN_DB.filter(x=>!f||x.de.toLowerCase().includes(f)||x.g.toLowerCase().includes(f)).sort((a,b)=>a.de.localeCompare(b.de));
+  const html=liste.map(x=>`<button class="treffer" data-a="listeWahl" data-g="${esc(x.a||x.g)}" data-raum="${raumId||''}"><img src="${figSrc(x.f)}" alt=""><div><b>${esc(x.de)}</b><small class="leise">💧 alle ${x.tage} Tage · ${esc(x.licht)}</small></div></button>`).join('')||'<div class="leer">Nichts gefunden.</div>';
+  if(filter&&$('#listeTreffer')){$('#listeTreffer').innerHTML=html;return}
+  sheet(`<h2>Pflanze wählen</h2><div class="feld"><input type="text" id="listeSuche" placeholder="Suchen, z. B. Monstera" data-raum="${raumId||''}"></div><div class="liste" id="listeTreffer">${html}</div>`);
+}
+
+function formular(p,opt={}){
+  entwurf=Object.assign({id:null,name:'',figur:'pflanze',tage:7,saisonTyp:'n',duengen:14,menge:'mittel',raum:'',letzteGiessung:heute()},p);
+  raeumeSicherstellen();
+  const e=entwurf,neu=!e.id;
+  sheet(`<h2>${neu?'Neue Pflanze':'Pflanze bearbeiten'}</h2>
+    ${opt.hinweis?`<div class="karte" style="margin-bottom:14px;background:var(--terra-h)">${esc(opt.hinweis)}</div>`:''}
+    <div class="feld"><label>Name</label><input type="text" id="fName" value="${esc(e.name)}" placeholder="z. B. Monstera Moni"></div>
+    <div class="feld"><label>Foto</label><div class="fotowahl"><div class="vorschau" id="fFoto" style="${e.foto?`background-image:url(${e.foto})`:''}">${e.foto?'':'📷'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px"><button class="btn klein" data-a="fotoAendern">${e.foto?'Neues Foto':'Foto hinzufügen'}</button>${e.foto?'<button class="btn klein rot" data-a="fotoWeg">Foto entfernen</button>':''}</div></div></div>
+    <div class="feld"><label>Figur</label><div class="figwahl">${FIGUREN.map(([k,t])=>`<button class="${e.figur===k?'akt':''}" data-a="figur" data-v="${k}" title="${t}"><img src="${figSrc(k)}" alt="${t}"></button>`).join('')}</div></div>
+    <div class="feld"><label>Raum</label><select id="fRaum"><option value="">Ohne Raum</option>${raeume().map(r=>`<option value="${r.id}" ${e.raum===r.id?'selected':''}>${esc(r.emoji)} ${esc(r.name)}</option>`).join('')}</select></div>
+    <div class="feld"><label>Giessen alle … Tage (im Sommer)</label><div class="stepper"><button data-a="step" data-f="tage" data-d="-1">−</button><output id="o_tage">${e.tage} Tage</output><button data-a="step" data-f="tage" data-d="1">＋</button></div></div>
+    <div class="feld"><label>Wassermenge</label><div class="wahl" id="wMenge">${['wenig','mittel','viel'].map(m=>`<button class="${e.menge===m?'akt':''}" data-a="menge" data-v="${m}">${m==='wenig'?'💧':m==='mittel'?'💧💧':'💧💧💧'} ${m}</button>`).join('')}</div><div class="leise" id="mengeTxt" style="margin-top:4px">${esc(MENGE[e.menge])}</div></div>
+    <div class="feld"><label>Pflanzentyp</label><div class="wahl" id="wTyp"><button class="${e.saisonTyp!=='k'?'akt':''}" data-a="typ" data-v="n">🌿 normal</button><button class="${e.saisonTyp==='k'?'akt':''}" data-a="typ" data-v="k">🌵 Kaktus/Sukkulente</button></div></div>
+    <div class="feld"><label>Düngen alle … Tage (März–September)</label><div class="stepper"><button data-a="step" data-f="duengen" data-d="-7">−</button><output id="o_duengen">${e.duengen?e.duengen+' Tage':'nie'}</output><button data-a="step" data-f="duengen" data-d="7">＋</button></div></div>
+    <div class="feld"><label>Zuletzt gegossen</label><input type="date" id="fLetzte" value="${esc(e.letzteGiessung||heute())}" max="${heute()}"></div>
+    <div class="feld"><label>Zuletzt umgetopft (falls bekannt)</label><input type="date" id="fUmtopf" value="${esc(e.letztesUmtopfen||'')}" max="${heute()}"></div>
+    <div class="feld"><label>Eigene Notiz</label><textarea id="fNotiz" rows="2" placeholder="z. B. Geschenk von Mami, mag kein kaltes Wasser">${esc(e.notiz||'')}</textarea></div>
+    ${e.art?`<p class="leise">Art: <i>${esc(e.art)}</i></p>`:''}
+    <button class="btn voll breit" data-a="speichern">${neu?'Pflanze hinzufügen 🌿':'Speichern'}</button>
+    ${neu?'':`<button class="btn rot breit" style="margin-top:10px" data-a="loeschen" data-id="${e.id}">Pflanze löschen</button>`}`);
+}
+function formularLesen(){
+  const e=entwurf;
+  e.name=$('#fName').value.trim();e.raum=$('#fRaum').value;
+  e.letzteGiessung=$('#fLetzte').value||heute();e.letztesUmtopfen=$('#fUmtopf').value||'';e.notiz=$('#fNotiz').value.trim();
+}
+
+/* ============ Ferien ============ */
+function ferienSheet(){
+  const e=E();
+  sheet(`<h2>🌴 Ferienmodus</h2><p class="leise">Während der Ferien kommen keine Erinnerungen. Du bekommst einen Plan für die Pflanzensitterin bzw. den Pflanzensitter.</p>
+    <div class="feld"><label>Abreise</label><input type="date" id="fVon" value="${esc(e.ferienVon)}"></div>
+    <div class="feld"><label>Rückkehr</label><input type="date" id="fBis" value="${esc(e.ferienBis)}"></div>
+    <button class="btn voll breit" data-a="ferienSpeichern">Speichern & Plan zeigen</button>
+    ${e.ferienVon?'<button class="btn rot breit" style="margin-top:10px" data-a="ferienEnde">Ferienmodus beenden</button>':''}`);
+}
+function ferienText(){
+  const e=E(),von=e.ferienVon,bis=e.ferienBis,n=tageZwischen(von,bis)+1,pl=plan(n,von);
+  const vorher=nachRaum(S.pflanzen.filter(p=>naechste(p)<=bis).map(p=>p.id));
+  const zeilen=[`🌿 Pflanzis – Giessplan ${kurz(von)} bis ${kurz(bis)}`,''];
+  for(const tag of Object.keys(pl).sort()){
+    const g=nachRaum(pl[tag].g);if(!g.length)continue;
+    zeilen.push(`📅 ${kurz(tag)}`);
+    g.forEach(p=>zeilen.push(`  💧 ${p.name} (${raum(p.raum)?.name||'ohne Raum'}): ${MENGE[p.menge||'mittel']}${p.tipp?' – '+p.tipp:''}`));
+    zeilen.push('');
+  }
+  zeilen.push('Danke fürs Giessen! 💚');
+  return {text:zeilen.join('\n'),pl,vorher};
+}
+function ferienplan(){
+  const e=E();if(!e.ferienVon||!e.ferienBis)return ferienSheet();
+  const {pl,vorher}=ferienText();
+  sheet(`<h2>🌴 Plan für die Ferien</h2>
+    <div class="karte" style="margin-bottom:12px"><b>Vor der Abreise giessen</b><div class="leise">Diese Pflanzen wären in den Ferien fällig. Gründlich giessen, dann halten sie länger.</div>
+      <div class="punkte" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${vorher.map(p=>`<span class="chip"><img src="${figSrc(p.figur)}" alt="">${esc(p.name)}</span>`).join('')||'<span class="leise">keine</span>'}</div></div>
+    ${Object.keys(pl).sort().filter(t=>pl[t].g.length).map(tag=>`<div class="plantag"><div class="datum"><small>${WT[ausIso(tag).getDay()]}</small><b>${ausIso(tag).getDate()}</b></div><div class="punkte">${nachRaum(pl[tag].g).map(p=>`<span class="chip"><img src="${figSrc(p.figur)}" alt="">${esc(p.name)}</span>`).join('')}</div></div>`).join('')||'<div class="leer">In dieser Zeit muss nichts gegossen werden 🎉</div>'}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn voll" data-a="ferienTeilen">📤 Teilen</button><button class="btn" data-a="ferienDrucken">🖨️ Drucken</button></div>
+    <button class="btn breit" style="margin-top:8px" data-a="vorherGiessen">💧 Alle vor der Abreise gegossen</button>`);
+}
+function ferienDrucken(){
+  const e=E(),{pl}=ferienText();
+  $('#druck').innerHTML=`<h1>🌿 Giessplan ${kurz(e.ferienVon)} – ${kurz(e.ferienBis)}</h1>
+    ${Object.keys(pl).sort().filter(t=>pl[t].g.length).map(tag=>`<h3>${kurz(tag)}</h3>${nachRaum(pl[tag].g).map(p=>`<div class="dz"><img src="${esc(p.foto||figSrc(p.figur))}" alt=""><b>${esc(p.name)}</b> · ${esc(raum(p.raum)?.name||'')}<br><small>${esc(MENGE[p.menge||'mittel'])}${p.tipp?' – '+esc(p.tipp):''}</small></div>`).join('')}`).join('')}
+    <p>Danke fürs Giessen! 💚</p>`;
+  setTimeout(()=>window.print(),300);
+}
+
+/* ============ Anleitungen ============ */
+function anleitungErinnerungen(){
+  sheet(`<h2>📲 Erinnerungen einrichten</h2>
+  <p class="leise">Einmalig, ca. 5 Minuten. Danach legt das iPhone jeden Morgen automatisch die Giessrunde in der App <b>Erinnerungen</b> an (Liste «Pflanzis»).</p>
+  <div class="karte" style="margin-bottom:12px"><b>Schritt 0:</b> In der App Erinnerungen eine Liste <b>Pflanzis</b> erstellen.</div>
+  <div class="karte" style="margin-bottom:12px"><b>Schritt 1: Kurzbefehl bauen</b> (App «Kurzbefehle» → ＋, Name <b>Pflanzis</b>)
+  <ol class="schritte">
+    <li><b>Text</b> → diese Adresse einfügen: <button class="btn klein" data-a="exportKopieren">Adresse kopieren</button></li>
+    <li><b>Inhalte von URL abrufen</b> (nimmt automatisch den Text)</li>
+    <li><b>Wörterbuchwert abrufen</b>: Wert für <code>fields.json.stringValue</code></li>
+    <li><b>Wörterbuch abrufen</b> von «Wörterbuchwert»</li>
+    <li><b>Aktuelles Datum</b>, dann <b>Datum formatieren</b>: Datumsformat «Eigenes», <code>yyyy-MM-dd</code>, Zeitformat «Keine»</li>
+    <li><b>Wörterbuchwert abrufen</b>: Wert für «Formatiertes Datum» in «Wörterbuch» (Schritt 4) → umbenennen in <i>Heute</i></li>
+    <li><b>Wenn</b> «Heute» <i>hat einen Wert</i>:
+      <ol type="a">
+        <li><b>Wörterbuchwert abrufen</b> <code>titel</code> aus «Heute», ebenso <code>notiz</code>, <code>zeit</code> und <code>url</code></li>
+        <li><b>Erinnerungen suchen</b>: Filter «Liste ist Pflanzis» und «Titel ist <i>titel</i>»</li>
+        <li><b>Wenn</b> «Erinnerungen» <i>hat keinen Wert</i>: <b>Neue Erinnerung hinzufügen</b> mit <i>titel</i>, Liste «Pflanzis», Erinnern «Zu einer Zeit» = <i>zeit</i>, Notizen = <i>notiz</i>, URL = <i>url</i></li>
+      </ol></li>
+  </ol></div>
+  <div class="karte" style="margin-bottom:12px"><b>Schritt 2: Automatisch jeden Morgen</b>
+  <ol class="schritte"><li>Kurzbefehle → <b>Automation</b> → ＋ → <b>Tageszeit</b> → 07:00, täglich</li><li><b>Sofort ausführen</b> wählen, Aktion «Kurzbefehl ausführen» → <b>Pflanzis</b></li></ol></div>
+  <div class="karte" style="margin-bottom:12px"><b>Schritt 3: Testen</b><div class="leise">Im Tab «Plan» auf «Jetzt an Erinnerungen senden» tippen. Ist heute etwas fällig, erscheint eine Erinnerung in der Liste «Pflanzis».</div></div>
+  <p class="leise">Tippt man in der Erinnerung auf den Link, öffnet sich Pflanzis mit der heutigen Giessrunde. Die Adresse enthält euren Haushalts-Code: nicht weitergeben.</p>
+  <button class="btn voll breit" data-a="zu">Fertig</button>`);
+}
+function plantnetSheet(){
+  sheet(`<h2>📷 Pl@ntNet einrichten</h2>
+  <p class="leise">Gratis bis 500 Erkennungen pro Tag. Einmalig einrichten, gilt dann für euch beide.</p>
+  <ol class="schritte">
+    <li><b>my.plantnet.org</b> öffnen und ein Konto erstellen (E-Mail bestätigen).</li>
+    <li>Oben auf <b>Settings</b>: unter «Authorized domains» <code>jnhbr.github.io</code> eintragen und speichern.</li>
+    <li>Den <b>API key</b> kopieren und hier einfügen:</li>
+  </ol>
+  <div class="feld"><input type="password" id="pnKey" value="${esc(E().plantnetKey)}" placeholder="API-Schlüssel" autocomplete="off"></div>
+  <button class="btn voll breit" data-a="plantnetSpeichern">Speichern</button>`);
+}
+
+/* ============ Kalender (.ics) ============ */
+function ics(){
+  const d=erinnerungsDaten(),e=E();const [hh,mm]=(e.zeit||'18:00').split(':');
+  const icsEsc=s=>String(s).replace(/[\\;,]/g,m=>'\\'+m).replace(/\n/g,'\\n');
+  const z=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Pflanzis//DE','CALSCALE:GREGORIAN'];
+  for(const [tag,x] of Object.entries(d)){
+    const dt=tag.replace(/-/g,'')+`T${hh}${mm}00`;
+    z.push('BEGIN:VEVENT',`UID:pflanzis-${tag}-${code()}`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').slice(0,15)}Z`,`DTSTART:${dt}`,'DURATION:PT15M',
+      `SUMMARY:${icsEsc(x.titel)}`,`DESCRIPTION:${icsEsc(x.notiz)}`,`URL:${x.url}`,'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:PT0M',`DESCRIPTION:${icsEsc(x.titel)}`,'END:VALARM','END:VEVENT');
+  }
+  z.push('END:VCALENDAR');
+  const blob=new Blob([z.join('\r\n')],{type:'text/calendar'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pflanzis-giessplan.ics';a.click();
+  toast('Kalenderdatei mit den nächsten 31 Tagen erstellt');
+}
+
+/* ============ Ereignisse ============ */
+document.addEventListener('click',async ev=>{
+  const tabB=ev.target.closest('[data-tab]');
+  if(tabB){tab=tabB.dataset.tab;detailId=null;zeichne();scrollTo(0,0);return}
+  const el=ev.target.closest('[data-a]');if(!el)return;
+  const a=el.dataset.a,id=el.dataset.id;
+  switch(a){
+    case 'zu':zu();break;
+    case 'neuerHaushalt':{const c=Array.from(crypto.getRandomValues(new Uint8Array(20)),b=>'abcdefghjkmnpqrstuvwxyz23456789'[b%31]).join('');lsSet(LSC,c);history.replaceState(null,'',`?code=${c}`);initSync();raeumeSicherstellen();zeichne();break}
+    case 'codeEingeben':sheet(`<h2>🔑 Code oder Einladungslink</h2><div class="feld"><input type="text" id="codeIn" placeholder="Code oder Link einfügen" autocapitalize="off"></div><button class="btn voll breit" data-a="codeSpeichern">Beitreten</button>`);break;
+    case 'codeSpeichern':{let v=$('#codeIn').value.trim();const m=v.match(/code=([a-z0-9]+)/i);if(m)v=m[1];
+      if(v.length<16){toast('Der Code ist zu kurz');break}
+      lsSet(LSC,v);history.replaceState(null,'',`?code=${v}`);S={pflanzen:[],tagebuch:[],raeume:[],einstellungen:[]};speichern();zu();initSync();break}
+    case 'nameSpeichern':{const n=$('#nameIn').value.trim();if(!n){toast('Bitte einen Namen eingeben');break}lsSet(LSN,n);zeichne();break}
+    case 'nameAendern':sheet(`<h2>Dein Name</h2><div class="feld"><input type="text" id="nameIn" value="${esc(ich())}"></div><button class="btn voll breit" data-a="nameSpeichern2">Speichern</button>`);break;
+    case 'nameSpeichern2':{const n=$('#nameIn').value.trim();if(n)lsSet(LSN,n);zu();zeichne();break}
+    case 'einladen':{const url=`${window.APP_URL||location.origin+location.pathname}?code=${code()}`;
+      const text=`🌿 Komm in unseren Pflanzis-Haushalt! Link in Safari öffnen, dann Teilen → «Zum Home-Bildschirm»: ${url}`;
+      if(navigator.share)navigator.share({title:'Pflanzis',text}).catch(()=>{});else{navigator.clipboard?.writeText(url);toast('Link kopiert')}break}
+    case 'oeffne':detailId=id;history.pushState({d:id},'');zeichne();scrollTo(0,0);break;
+    case 'zurueck':history.back();break;
+    case 'giessen':giessen(id);break;
+    case 'alleGiessen':{const g=plan(1)[heute()]?.g||[];g.forEach(i=>giessen(i,true));toast(`💚 ${g.length} Pflanzen gegossen, danke!`);break}
+    case 'duengen':duengen(id);break;
+    case 'umtopfen':umtopfen(id);break;
+    case 'ansicht':lsSet(LSA,el.dataset.v);zeichne();break;
+    case 'neuePflanze':neuePflanze(el.dataset.raum);break;
+    case 'erkennen':erkennen(el.dataset.raum);break;
+    case 'ausListe':ausListe(el.dataset.raum);break;
+    case 'selbst':formular({raum:el.dataset.raum||''});break;
+    case 'listeWahl':{const c=pflegeFuer(el.dataset.g,el.dataset.g);formular(ausPflege(c,{raum:el.dataset.raum||'',art:c?.a||''}));break}
+    case 'trefferWahl':{const {res,klein,raumId}=window._treffer;const i=+el.dataset.i;
+      if(i<0){formular(ausPflege(null,{foto:klein,raum:raumId}));break}
+      const sp=res[i].species||{},c=pflegeFuer(sp.scientificNameWithoutAuthor,sp.genus?.scientificNameWithoutAuthor);
+      formular(ausPflege(c,{foto:klein,raum:raumId,art:sp.scientificNameWithoutAuthor,name:sp.commonNames?.[0]||(c?c.de.replace(/ \(.*\)$/,''):sp.scientificNameWithoutAuthor)}),c?{}:{hinweis:'Für diese Art habe ich keinen Pflegeplan. Giessabstand bitte prüfen (Standard 7 Tage).'});break}
+    case 'figur':entwurf.figur=el.dataset.v;$$('.figwahl button').forEach(b=>b.classList.toggle('akt',b===el));break;
+    case 'menge':entwurf.menge=el.dataset.v;$$('#wMenge button').forEach(b=>b.classList.toggle('akt',b===el));$('#mengeTxt').textContent=MENGE[entwurf.menge];break;
+    case 'typ':entwurf.saisonTyp=el.dataset.v;$$('#wTyp button').forEach(b=>b.classList.toggle('akt',b===el));break;
+    case 'step':{const f=el.dataset.f,d=+el.dataset.d;let v=(entwurf[f]||0)+d;v=f==='tage'?Math.min(60,Math.max(1,v)):Math.min(84,Math.max(0,v));entwurf[f]=v;
+      $('#o_'+f).textContent=f==='duengen'&&!v?'nie':v+' Tage';break}
+    case 'fotoAendern':{const datei=await fotoWaehlen();if(!datei)break;formularLesen();entwurf.foto=await verkleinern(datei,420,.7);formular(entwurf);break}
+    case 'fotoWeg':formularLesen();entwurf.foto='';formular(entwurf);break;
+    case 'speichern':{formularLesen();const e=entwurf;if(!e.name){toast('Bitte einen Namen eingeben');break}
+      const neu=!e.id;if(neu){e.id=uid();e.erstellt=Date.now()}
+      put('pflanzen',e);if(neu)logEintrag(e.id,'notiz',{text:'Neu bei Pflanzis 🌱',foto:e.foto||''});
+      zu();toast(neu?`🌿 ${e.name} ist eingezogen!`:'Gespeichert');if(neu&&tab==='heute'&&!S.pflanzen.filter(p=>p.id!==e.id).length)tab='pflanzen';zeichne();break}
+    case 'bearbeiten':formular(JSON.parse(JSON.stringify(pflanze(id))));break;
+    case 'loeschen':{const p=pflanze(id);if(!confirm(`${p.name} wirklich löschen? Das Tagebuch dieser Pflanze wird ebenfalls gelöscht.`))break;
+      S.tagebuch.filter(t=>t.pflanze===id).forEach(t=>del('tagebuch',t.id));del('pflanzen',id);zu();detailId=null;zeichne();toast('Pflanze gelöscht');break}
+    case 'notiz':sheet(`<h2>📝 Tagebuch</h2><div class="feld"><textarea id="nText" rows="3" placeholder="Neues Blatt! Blüht. Gelbe Spitzen …"></textarea></div>
+      <div class="feld"><div class="fotowahl"><div class="vorschau" id="nFoto">📷</div><button class="btn klein" data-a="notizFoto">Foto hinzufügen</button></div></div>
+      <button class="btn voll breit" data-a="notizSpeichern" data-id="${id}">Eintragen</button>`);window._nFoto='';break;
+    case 'notizFoto':{const datei=await fotoWaehlen();if(!datei)break;window._nFoto=await verkleinern(datei,480,.7);const v=$('#nFoto');v.style.backgroundImage=`url(${window._nFoto})`;v.textContent='';break}
+    case 'notizSpeichern':{const t=$('#nText').value.trim();if(!t&&!window._nFoto){toast('Text oder Foto hinzufügen');break}logEintrag(id,'notiz',{text:t,foto:window._nFoto||''});zu();zeichne();break}
+    case 'eintragLoeschen':if(confirm('Eintrag löschen?')){del('tagebuch',id);zeichne()}break;
+    case 'saison':setE({saison:!E().saison});zeichne();break;
+    case 'plantnet':plantnetSheet();break;
+    case 'plantnetSpeichern':setE({plantnetKey:$('#pnKey').value.trim()});zu();zeichne();toast('Pl@ntNet-Schlüssel gespeichert');break;
+    case 'anleitungErinnerungen':anleitungErinnerungen();break;
+    case 'exportKopieren':try{await navigator.clipboard.writeText(exportUrl());toast('Adresse kopiert')}catch(e){prompt('Adresse kopieren:',exportUrl())}break;
+    case 'anErinnerungen':{const ok=await exportSchreiben();if(!ok){toast('Nicht verbunden: bitte Internet prüfen');break}location.href='shortcuts://run-shortcut?name=Pflanzis';break}
+    case 'ics':ics();break;
+    case 'ferien':ferienSheet();break;
+    case 'ferienSpeichern':{const v=$('#fVon').value,b=$('#fBis').value;if(!v||!b||b<v){toast('Bitte Abreise und Rückkehr wählen');break}setE({ferienVon:v,ferienBis:b});ferienplan();zeichne();break}
+    case 'ferienEnde':setE({ferienVon:'',ferienBis:''});zu();zeichne();toast('Ferienmodus beendet');break;
+    case 'ferienplan':ferienplan();break;
+    case 'ferienTeilen':{const t=ferienText().text;if(navigator.share)navigator.share({title:'Giessplan',text:t}).catch(()=>{});else{navigator.clipboard?.writeText(t);toast('Plan kopiert')}break}
+    case 'ferienDrucken':ferienDrucken();break;
+    case 'vorherGiessen':{const {vorher}=ferienText();vorher.forEach(p=>giessen(p.id,true));toast(`💧 ${vorher.length} Pflanzen gegossen. Schöne Ferien! 🌴`);zu();break}
+    case 'raeume':raeumeSheet();break;
+    case 'raumHoch':case 'raumRunter':{const l=raeume(),i=l.findIndex(r=>r.id===id),j=i+(a==='raumHoch'?-1:1);if(j<0||j>=l.length)break;
+      [l[i],l[j]]=[l[j],l[i]];l.forEach((r,k)=>{if(r.reihe!==k){r.reihe=k;put('raeume',r)}});raeumeSheet();break}
+    case 'raumUmbenennen':{const r=raum(id);const n=prompt('Name des Raums',r.name);if(n&&n.trim()){r.name=n.trim();put('raeume',r);raeumeSheet()}break}
+    case 'raumEmoji':{const r=raum(id);const n=prompt('Emoji für den Raum',r.emoji);if(n&&n.trim()){r.emoji=n.trim();put('raeume',r);raeumeSheet()}break}
+    case 'raumLoeschen':{const r=raum(id);const anz=S.pflanzen.filter(p=>p.raum===id).length;if(!confirm(`${r.name} löschen?${anz?` ${anz} Pflanzen landen bei «Ohne Raum».`:''}`))break;del('raeume',id);raeumeSheet();break}
+    case 'raumNeu':{const n=prompt('Name des neuen Raums (z. B. Gästezimmer)');if(n&&n.trim()){put('raeume',{id:'raum-'+uid(),name:n.trim(),emoji:'🚪',reihe:S.raeume.length});raeumeSheet()}break}
+    case 'backup':{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const x=document.createElement('a');x.href=URL.createObjectURL(blob);x.download=`pflanzis-sicherung-${heute()}.json`;x.click();break}
+    case 'restore':{const i=document.createElement('input');i.type='file';i.accept='application/json,.json';i.onchange=async()=>{try{const d=JSON.parse(await i.files[0].text());
+      if(!confirm('Sicherung laden? Bestehende Einträge mit gleicher Kennung werden überschrieben.'))return;
+      for(const col of COLS)(d[col]||[]).forEach(x=>put(col,x));toast('Sicherung geladen');zeichne()}catch(e){toast('Datei konnte nicht gelesen werden')}};i.click();break}
+  }
+});
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='listeSuche')ausListe(ev.target.dataset.raum,ev.target.value);
+});
+document.addEventListener('change',ev=>{
+  if(ev.target.dataset.a==='zeit'&&ev.target.value){setE({zeit:ev.target.value});toast('Erinnerungszeit gespeichert')}
+});
+function raeumeSheet(){
+  raeumeSicherstellen();
+  sheet(`<h2>🚪 Räume</h2><p class="leise">Die Reihenfolge bestimmt die Giessrunde: so läufst du nicht kreuz und quer.</p>
+    <div class="karte">${raeume().map((r,i,l)=>`<div class="mehr-zeile"><button class="btn klein" data-a="raumEmoji" data-id="${r.id}" style="font-size:20px">${esc(r.emoji)}</button>
+      <div class="t" data-a="raumUmbenennen" data-id="${r.id}"><b>${esc(r.name)}</b><small>${S.pflanzen.filter(p=>p.raum===r.id).length} Pflanzen · antippen zum Umbenennen</small></div>
+      <button class="btn klein" data-a="raumHoch" data-id="${r.id}" ${i===0?'disabled style="opacity:.3"':''}>↑</button><button class="btn klein" data-a="raumRunter" data-id="${r.id}" ${i===l.length-1?'disabled style="opacity:.3"':''}>↓</button>
+      <button class="btn klein rot" data-a="raumLoeschen" data-id="${r.id}">✕</button></div>`).join('')}</div>
+    <button class="btn voll breit" style="margin-top:12px" data-a="raumNeu">＋ Raum hinzufügen</button>`);
+}
+addEventListener('popstate',()=>{if(detailId){detailId=null;zeichne()}else if($('#sheet').classList.contains('auf'))zu()});
+
+/* ============ Start ============ */
+zeichne();
+initSync();
+exportPlanen();
+// Mitternacht/Rückkehr in die App: neu zeichnen
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){zeichne();exportPlanen()}});
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+rules_version = '2';
+// Gilt für das ganze Firebase-Projekt «Meine Rezepte» (meine-r):
+// Rezepte-App UND Pflanzis. Beim Ändern immer beide Blöcke behalten!
+service cloud.firestore {
+  match /databases/{db}/documents {
+    // Rezepte-App (unverändert)
+    match /haushalte/{code}/{document=**} { allow read, write: if true; }
+
+    // Pflanzis: Schutz = langer, geheimer Haushalts-Code im Pfad, keine Auflistung der Haushalte
+    match /pflanzis/{code}/{col}/{doc} {
+      allow read, write: if code.size() >= 16
+        && col in ['pflanzen', 'tagebuch', 'raeume', 'einstellungen', 'export'];
+    }
+  }
+}
