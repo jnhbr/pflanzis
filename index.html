@@ -410,8 +410,10 @@ function erinnerungsDaten(){
     if(d.length)zeilen.push('🌱 Düngen:',...d.map(p=>`• ${p.name}`));
     if(u.length)zeilen.push('🪴 Umtopfen prüfen:',...u.map(p=>`• ${p.name}`));
     zeilen.push('',`Öffnen: ${window.APP_URL||location.origin+location.pathname}?code=${code()}&runde=${tag}`);
+    const namen=[...g,...d].map(p=>p.name);
     out[tag]={
-      titel:`${g.length?'💧':'🌱'} Pflanzis ${kurz(tag)}: ${teile.join(', ')}`,
+      id:`Pflanzis ${kurz(tag)}`,
+      titel:`${g.length?'💧':'🌱'} Pflanzis ${kurz(tag)}: ${namen.length<=3?namen.join(', '):teile.join(', ')}`,
       notiz:zeilen.join('\n'),
       zeit:`${tag} ${e.zeit||'18:00'}`,
       url:`${window.APP_URL||location.origin+location.pathname}?code=${code()}&runde=${tag}`
