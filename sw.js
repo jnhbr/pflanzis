@@ -1,4 +1,4 @@
-const C='pflanzis-v1';
+const C='pflanzis-v2';
 const FIGS=['pflanze','monstera','efeutute','ficus','bogenhanf','gluecksfeder','einblatt','gruenlilie','orchidee','kaktus','kraeuter'].map(f=>`img/fig/${f}.jpg`);
 const F=['./','index.html','config.js','db.js','manifest.json','icon-192.png','apple-touch-icon.png',...FIGS];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting()});

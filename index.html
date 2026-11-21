@@ -716,7 +716,8 @@ async function erkennen(raumId){
     const fd=new FormData();fd.append('organs','auto');fd.append('images',await dataZuBlob(gross),'pflanze.jpg');
     const r=await fetch(`https://my-api.plantnet.org/v2/identify/all?api-key=${encodeURIComponent(key)}&lang=de&nb-results=5&include-related-images=false`,{method:'POST',body:fd});
     if(r.status===404){formular(ausPflege(null,{foto:klein,raum:raumId}),{hinweis:'Pl@ntNet hat keine Pflanze erkannt. Tipp: ein Blatt gross und scharf fotografieren.'});return}
-    if(!r.ok)throw new Error(r.status===401||r.status===403?'Schlüssel ungültig oder Domain nicht freigegeben':r.status===429?'Tageslimit erreicht (500 Fotos)':'Fehler '+r.status);
+    if(!r.ok){let m='';try{const j=await r.json();m=j.message||j.error||''}catch(x){}
+      throw new Error((r.status===401?'Schlüssel ungültig (neuen Schlüssel unter Mehr → Pl@ntNet eintragen)':r.status===403?'Domain nicht freigegeben (auf my.plantnet.org jnhbr.github.io eintragen und «Update key settings»)':r.status===429?'Tageslimit erreicht (500 Fotos)':'Fehler')+` [${r.status}${m?': '+m:''}]`)}
     const j=await r.json();
     const res=(j.results||[]).slice(0,5);
     window._treffer={res,klein,raumId};
@@ -725,7 +726,7 @@ async function erkennen(raumId){
         return `<button class="treffer" data-a="trefferWahl" data-i="${i}"><img src="${figSrc(c?.f)}" alt=""><div><b>${esc(sp.commonNames?.[0]||c?.de||sp.scientificNameWithoutAuthor)}</b><small class="leise"><i>${esc(sp.scientificNameWithoutAuthor)}</i>${c?'':' · Pflegeplan bitte prüfen'}</small></div><span class="score">${Math.round((x.score||0)*100)} %</span></button>`}).join('')}
       <button class="btn breit" style="margin-top:8px" data-a="trefferWahl" data-i="-1">Keine davon, selbst eingeben</button>
       <p class="leise" style="font-size:12px;margin-top:10px">Erkennung: Pl@ntNet</p>`);
-  }catch(e){formular(ausPflege(null,{foto:klein,raum:raumId}),{hinweis:'Erkennung nicht möglich: '+e.message})}
+  }catch(e){formular(ausPflege(null,{foto:klein,raum:raumId}),{hinweis:'Erkennung nicht möglich: '+(e instanceof TypeError?'keine Verbindung zu Pl@ntNet (Internet oder Domain-Freigabe prüfen)':e.message)})}
 }
 function ausListe(raumId,filter=''){
   const f=filter.toLowerCase();
