@@ -16,7 +16,7 @@ Live: https://jnhbr.github.io/pflanzis/ · Repo: `jnhbr/pflanzis` (GitHub Pages,
   Kein eigenes Projekt, weil das Google-Projektkontingent voll ist (21.11.2026).
 - `firestore.rules` gilt für das **ganze** Projekt meine-r (Rezepte + Pflanzis). Beim Ändern beide Blöcke behalten, deployen mit `firebase deploy --only firestore:rules --project meine-r`.
 - Schutz = geheimer Haushalts-Code (20 Zeichen) im Pfad, Auflisten gesperrt.
-- Erinnerungen: App schreibt bei jeder Änderung `pflanzis/<code>/export/erinnerungen` (Feld `json` = Tage → titel/notiz/zeit/url, 31 Tage). Der iOS-Kurzbefehl «Pflanzis» liest das per Firestore-REST und legt die heutige Erinnerung an (Anleitung in der App unter Mehr → Erinnerungen-App).
+- Erinnerungen: App schreibt bei jeder Änderung `pflanzis/<code>/export/erinnerungen` (Feld `json` = Tage → titel/notiz/zeit/url, 31 Tage). Der iOS-Kurzbefehl «Pflanzis» liest das per Firestore-REST und legt die nächsten 7 Tage an (siehe Abschnitt Kurzbefehl unten).
 - Pflanzenerkennung: Pl@ntNet API (gratis, 500/Tag). Schlüssel steht in Firestore (`einstellungen/haushalt.plantnetKey`), nicht im Repo; in my.plantnet.org Domain `jnhbr.github.io` freigeben.
 - Bilder: Logo + 10 Figuren mit Higgsfield (nano_banana_2), Originale in `design/` (PNG nicht im Repo), Web-Versionen in `img/fig/`.
 - Service Worker `sw.js`: Netz zuerst, offline aus Cache. Bei neuen Dateien Cache-Version erhöhen.
