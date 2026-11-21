@@ -409,6 +409,7 @@ function erinnerungsDaten(){
     if(g.length)zeilen.push('💧 Giessen:',...g.map(p=>`• ${p.name} (${raum(p.raum)?.name||'ohne Raum'})`));
     if(d.length)zeilen.push('🌱 Düngen:',...d.map(p=>`• ${p.name}`));
     if(u.length)zeilen.push('🪴 Umtopfen prüfen:',...u.map(p=>`• ${p.name}`));
+    zeilen.push('',`Öffnen: ${window.APP_URL||location.origin+location.pathname}?code=${code()}&runde=${tag}`);
     out[tag]={
       titel:`${g.length?'💧':'🌱'} Pflanzis ${kurz(tag)}: ${teile.join(', ')}`,
       notiz:zeilen.join('\n'),
@@ -817,11 +818,10 @@ function anleitungErinnerungen(){
     <li><b>Wörterbuch abrufen</b> von «Wörterbuchwert»</li>
     <li><b>Aktuelles Datum</b>, dann <b>Datum formatieren</b>: Datumsformat «Eigenes», <code>yyyy-MM-dd</code>, Zeitformat «Keine»</li>
     <li><b>Wörterbuchwert abrufen</b>: Wert für «Formatiertes Datum» in «Wörterbuch» (Schritt 4) → umbenennen in <i>Heute</i></li>
-    <li><b>Wenn</b> «Heute» <i>hat einen Wert</i>:
+    <li><b>Wenn</b> «Heute» <i>hat einen Wert</i>. Zwischen «Wenn» und «Sonst» (neue Aktionen lange drücken und hinaufziehen):
       <ol type="a">
-        <li><b>Wörterbuchwert abrufen</b> <code>titel</code> aus «Heute», ebenso <code>notiz</code>, <code>zeit</code> und <code>url</code></li>
-        <li><b>Erinnerungen suchen</b>: Filter «Liste ist Pflanzis» und «Titel ist <i>titel</i>»</li>
-        <li><b>Wenn</b> «Erinnerungen» <i>hat keinen Wert</i>: <b>Neue Erinnerung hinzufügen</b> mit <i>titel</i>, Liste «Pflanzis», Erinnern «Zu einer Zeit» = <i>zeit</i>, Notizen = <i>notiz</i>, URL = <i>url</i></li>
+        <li>Dreimal <b>Wörterbuchwert abrufen</b> aus «Heute»: Schlüssel <code>titel</code>, <code>zeit</code>, <code>notiz</code></li>
+        <li><b>Neue Erinnerung hinzufügen</b>: Titel = <i>titel</i>, Liste «Pflanzis», Erinnern = <i>zeit</i>, Notizen = <i>notiz</i></li>
       </ol></li>
   </ol></div>
   <div class="karte" style="margin-bottom:12px"><b>Schritt 2: Automatisch jeden Morgen</b>
