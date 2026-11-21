@@ -20,3 +20,10 @@ Live: https://jnhbr.github.io/pflanzis/ · Repo: `jnhbr/pflanzis` (GitHub Pages,
 - Pflanzenerkennung: Pl@ntNet API (gratis, 500/Tag). Schlüssel steht in Firestore (`einstellungen/haushalt.plantnetKey`), nicht im Repo; in my.plantnet.org Domain `jnhbr.github.io` freigeben.
 - Bilder: Logo + 10 Figuren mit Higgsfield (nano_banana_2), Originale in `design/` (PNG nicht im Repo), Web-Versionen in `img/fig/`.
 - Service Worker `sw.js`: Netz zuerst, offline aus Cache. Bei neuen Dateien Cache-Version erhöhen.
+
+## iOS-Kurzbefehl «Pflanzis» (Erinnerungen, Stand 22.11.2026)
+- Erzeugen: `/usr/bin/python3 tools/kurzbefehl.py <haushalts-code> roh.shortcut && shortcuts sign --mode anyone -i roh.shortcut -o Pflanzis.shortcut` (System-Python, nicht Homebrew). `*.shortcut` ist in .gitignore (enthält den Code).
+- Ablauf: Export lesen → alle Pflanzis-Erinnerungen als Text (Doppelt-Prüfung über den Titel) → 7 Tagesblöcke (heute bis +6) → «Add New Reminder» mit Alarm `zeit`. Löscht nie etwas (iOS fragt bei jedem Löschen, Filter waren unzuverlässig).
+- Nach dem Import auf dem iPhone von Hand: in allen 7 «Add …»-Aktionen Liste **Pflanzis** wählen und bei «Find Reminders» Filter **List is Pflanzis** setzen (ohne Filter hängt die Suche über alle Erinnerungen). Die Liste lässt sich per Datei nicht vorgeben (interne Listen-ID).
+- Automation auf Rachels iPhone: täglich 07:00, Sofort ausführen.
+- Grenze: Wird früher gegossen, bleibt die alte Erinnerung stehen (abhaken); der neue Termin kommt am nächsten Morgen dazu.
