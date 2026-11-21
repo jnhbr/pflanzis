@@ -839,7 +839,9 @@ function plantnetSheet(){
     <li>Den <b>API key</b> kopieren und hier einfügen:</li>
   </ol>
   <div class="feld"><input type="password" id="pnKey" value="${esc(E().plantnetKey)}" placeholder="API-Schlüssel" autocomplete="off"></div>
-  <button class="btn voll breit" data-a="plantnetSpeichern">Speichern</button>`);
+  <button class="btn voll breit" data-a="plantnetSpeichern">Speichern</button>
+  <button class="btn breit" style="margin-top:8px" data-a="plantnetTesten">🔍 Schlüssel testen</button>
+  <div id="pnTest" class="leise" style="margin-top:10px"></div>`);
 }
 
 /* ============ Kalender (.ics) ============ */
@@ -916,6 +918,14 @@ document.addEventListener('click',async ev=>{
     case 'saison':setE({saison:!E().saison});zeichne();break;
     case 'plantnet':plantnetSheet();break;
     case 'plantnetSpeichern':setE({plantnetKey:$('#pnKey').value.trim()});zu();zeichne();toast('Pl@ntNet-Schlüssel gespeichert');break;
+    case 'plantnetTesten':{const k=$('#pnKey').value.trim(),o=$('#pnTest');
+      o.textContent=`Teste Schlüssel ${k.slice(0,7)}… (${k.length} Zeichen) …`;
+      const c=document.createElement('canvas');c.width=c.height=64;c.getContext('2d').fillRect(0,0,64,64);
+      const b=await new Promise(r=>c.toBlob(r,'image/jpeg'));const fd=new FormData();fd.append('organs','auto');fd.append('images',b,'test.jpg');
+      try{const r=await fetch(`https://my-api.plantnet.org/v2/identify/all?api-key=${encodeURIComponent(k)}&nb-results=1`,{method:'POST',body:fd});
+        let m='';try{m=(await r.json()).message||''}catch(x){}
+        o.innerHTML=`Schlüssel <b>${esc(k.slice(0,7))}…</b> (${k.length} Zeichen) → <b>${r.status===404||r.ok?'✅ funktioniert':r.status===401?'❌ Schlüssel ungültig':r.status===403?'❌ Domain nicht freigegeben':'⚠️ Fehler'}</b> [${r.status}${m?': '+esc(m):''}]`;
+      }catch(e){o.textContent='❌ Keine Verbindung zu Pl@ntNet: '+e.message}break}
     case 'anleitungErinnerungen':anleitungErinnerungen();break;
     case 'exportKopieren':try{await navigator.clipboard.writeText(exportUrl());toast('Adresse kopiert')}catch(e){prompt('Adresse kopieren:',exportUrl())}break;
     case 'anErinnerungen':{const ok=await exportSchreiben();if(!ok){toast('Nicht verbunden: bitte Internet prüfen');break}location.href='shortcuts://run-shortcut?name=Pflanzis';break}
